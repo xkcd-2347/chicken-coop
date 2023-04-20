@@ -41,3 +41,6 @@ Running locally:
 ```shell
 trunk serve
 ```
+
+Then navigate to: http://localhost:8080
+
