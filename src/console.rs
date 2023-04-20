@@ -72,5 +72,7 @@ pub fn console() -> Html {
 fn render(route: AppRoute) -> Html {
     match route {
         AppRoute::Index => html!(<pages::Index/>),
+        AppRoute::Package => html!(<pages::Index/>),
+        AppRoute::Vulnerability => html!(<pages::Index/>),
     }
 }
