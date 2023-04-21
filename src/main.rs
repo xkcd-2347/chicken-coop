@@ -2,10 +2,12 @@
 
 mod about;
 mod app;
+mod backend;
 mod components;
 mod console;
 mod hooks;
 mod pages;
+mod utils;
 
 use wasm_bindgen::prelude::*;
 

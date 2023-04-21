@@ -6,7 +6,7 @@ use crate::{
 };
 use patternfly_yew::prelude::*;
 use yew::prelude::*;
-use yew_nested_router::prelude::{Switch as RouterSwitch, *};
+use yew_nested_router::prelude::Switch as RouterSwitch;
 
 #[function_component(Console)]
 pub fn console() -> Html {
@@ -20,8 +20,12 @@ pub fn console() -> Html {
                 <NavList>
                     <NavExpandable title="Home">
                         <NavRouterItem<AppRoute> to={AppRoute::Index}>{ "Overview" }</NavRouterItem<AppRoute>>
+                        <NavRouterItem<AppRoute> to={AppRoute::Chicken}>{ "Chicken" }</NavRouterItem<AppRoute>>
                         <NavItem to="https://docs.seedwing.io/" target="_blank">{ "Documentation" } <ExtLinkIcon/> </NavItem>
                         <NavItem to="https://docs.seedwing.io/examples/dev/index.html" target="_blank">{ "Examples" } <ExtLinkIcon/> </NavItem>
+                    </NavExpandable>
+                    <NavExpandable title="Investigate">
+                        <NavRouterItem<AppRoute> to={AppRoute::Package{package: Default::default()}} predicate={AppRoute::is_package}>{ "Packages" }</NavRouterItem<AppRoute>>
                     </NavExpandable>
                 </NavList>
             </Nav>
@@ -31,11 +35,11 @@ pub fn console() -> Html {
     let callback_docs = use_open("https://docs.seedwing.io/", "_blank");
     let callback_github = use_open("https://github.com/xkcd-2347/chicken-coop", "_blank");
 
-    let backdropper = use_backdrop();
+    let backdrop = use_backdrop();
 
     let callback_about = Callback::from(move |_| {
-        if let Some(backdropper) = &backdropper {
-            backdropper.open(html!(<about::About/>));
+        if let Some(backdrop) = &backdrop {
+            backdrop.open(html!(<about::About/>));
         }
     });
 
@@ -57,22 +61,21 @@ pub fn console() -> Html {
     );
 
     html!(
-        <Router<AppRoute>>
-            <Page {logo} {sidebar} {tools}>
-                <RouterSwitch<AppRoute> {render}/>
+        <Page {logo} {sidebar} {tools}>
+            <RouterSwitch<AppRoute> {render}/>
 
-                <PageSection variant={PageSectionVariant::Darker} fill={PageSectionFill::NoFill}>
-                    {"Copyright © 2023 Red Hat, Inc. and "} <a href="https://github.com/seedwing-io" target="_blank"> {"The chickens"} </a> {"."}
-                </PageSection>
-            </Page>
-        </Router<AppRoute>>
+            <PageSection variant={PageSectionVariant::Darker} fill={PageSectionFill::NoFill}>
+                {"Copyright © 2023 Red Hat, Inc. and "} <a href="https://github.com/xkcd-2347" target="_blank"> {"The chickens"} </a> {"."}
+            </PageSection>
+        </Page>
     )
 }
 
 fn render(route: AppRoute) -> Html {
     match route {
         AppRoute::Index => html!(<pages::Index/>),
-        AppRoute::Package => html!(<pages::Index/>),
-        AppRoute::Vulnerability => html!(<pages::Index/>),
+        AppRoute::Chicken => html!(<pages::Chicken/>),
+        AppRoute::Package { package } => html!(<pages::Package {package}/>),
+        AppRoute::Vulnerability => html!(<pages::Vulnerability/>),
     }
 }

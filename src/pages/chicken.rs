@@ -1,8 +1,8 @@
 use patternfly_yew::prelude::*;
 use yew::prelude::*;
 
-#[function_component(Vulnerability)]
-pub fn vulnerability() -> Html {
+#[function_component(Chicken)]
+pub fn chicken() -> Html {
     html!(
         <>
             <PageSection sticky={[PageSectionSticky::Top]} >
