@@ -1,6 +1,6 @@
 pub mod data;
 
-use crate::backend::data::{Package, Vulnerability, PackageList, PackageRef};
+use crate::backend::data::{Package, PackageList, PackageRef, Vulnerability};
 use packageurl::PackageUrl;
 use url::{ParseError, Url};
 

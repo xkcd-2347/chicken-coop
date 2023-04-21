@@ -20,9 +20,17 @@ pub struct Package {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Vulnerability {
     pub cve: String,
+    pub severity: Option<String>,
+    pub cvss3: Option<Cvss3>,
     pub summary: String,
     pub advisory: String,
     pub packages: Vec<PackageRef>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Cvss3 {
+    pub score: String,
+    pub status: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

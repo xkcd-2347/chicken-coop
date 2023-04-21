@@ -5,6 +5,7 @@ use yew_nested_router::prelude::*;
 
 #[function_component(Index)]
 pub fn index() -> Html {
+    /*
     let router = use_router::<AppRoute>();
 
     let primary = Callback::from(move |_| {
@@ -17,21 +18,38 @@ pub fn index() -> Html {
     .into_action("Check package");
 
     let secondaries = vec![];
+     */
 
     html!(
         <>
+            <PageSection variant={PageSectionVariant::Light} fill=false>
+                <Title level={Level::H1}>{"Trusted Content"}</Title>
+                <Title level={Level::H2}>{"Fully hosted and managed service"}</Title>
+                {"hi"}
+            </PageSection>
             <PageSection variant={PageSectionVariant::Light} fill=true>
-                <Bullseye>
-                    <EmptyState
-                        full_height=true
-                        title="Chicken coop"
-                        icon={Icon::Catalog}
-                        {primary}
-                        {secondaries}
-                    >
-                        { "Good heavens, no! I'm a chicken! The Royal Air Force doesn't let chickens behind the controls of a complex aircraft. " }
-                    </EmptyState>
-                </Bullseye>
+                <Grid gutter={true}>
+                    <GridItem cols={WithBreakpoint::new(12)}>
+                        <Card title={html!("Search")}>
+                            {"Search!"}
+                        </Card>
+                    </GridItem>
+                    <GridItem cols={WithBreakpoint::new(6)}>
+                        <Card title={html!("Get Started")}>
+                            {"Get Started"}
+                        </Card>
+                    </GridItem>
+                    <GridItem cols={WithBreakpoint::new(6)} rows={WithBreakpoint::new(2)}>
+                        <Card title={html!("Why Trust Red Hat?")}>
+                            {"Why trust Red Hat?"}
+                        </Card>
+                    </GridItem>
+                    <GridItem cols={WithBreakpoint::new(6)}>
+                        <Card title={html!("Subscribe")}>
+                            {"Subscribe"}
+                        </Card>
+                    </GridItem>
+                </Grid>
             </PageSection>
         </>
     )
