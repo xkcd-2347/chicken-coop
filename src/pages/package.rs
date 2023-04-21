@@ -1,6 +1,12 @@
-use crate::backend::{data::PackageRef, Backend, PackageService};
-use crate::pages::AppRoute;
-use crate::utils::RenderOptional;
+use crate::{
+    backend::{
+        data::{self, PackageRef},
+        Backend, PackageService,
+    },
+    components::Trusted,
+    pages::AppRoute,
+    utils::RenderOptional,
+};
 use packageurl::PackageUrl;
 use patternfly_yew::prelude::*;
 use std::rc::Rc;
@@ -105,11 +111,23 @@ fn package_information(props: &PackageInformationProperties) -> Html {
                             <DescriptionGroup term="Version">{props.purl.version().clone().or_none()}</DescriptionGroup>
                         </DescriptionList>
                     </Card>
-                    <Card>
+                    <Card
+                        title={html!(<Title size={Size::XLarge}>
+                            {"Support"}
+                            if let UseAsyncState::Ready(Ok(data::Package{trusted: Some(true), ..})) = &*fetch_package {
+                                {" "} <Trusted/>
+                            }
+                        </Title>)}
+                    >
                         {
                             match &*fetch_package {
                                 UseAsyncState::Pending | UseAsyncState::Processing => html!(<Spinner/>),
-                                UseAsyncState::Ready(Ok(data)) => html!(<PackageDetails package={data.clone()}/>),
+                                UseAsyncState::Ready(Ok(data)) => html!(
+                                    <>
+                                        <PackageDetails package={data.clone()}/>
+                                        <PackageVulnerabilities package={data.clone()}/>
+                                    </>
+                                ),
                                 UseAsyncState::Ready(Err(err)) => html!(<>{"Failed to load: "} { err } </>),
                             }
                         }
@@ -138,10 +156,38 @@ pub struct PackageDetailsProperties {
 
 #[function_component(PackageDetails)]
 fn package_details(props: &PackageDetailsProperties) -> Html {
+    html!()
+}
+
+#[function_component(PackageVulnerabilities)]
+fn package_details(props: &PackageDetailsProperties) -> Html {
+    struct Vuln<'a> {
+        cve: &'a str,
+        // FIXME: try checking if we can add the severity
+    }
+
+    let vulns = props
+        .package
+        .vulnerabilities
+        .iter()
+        .map(|v| Vuln { cve: &v.cve })
+        .collect::<Vec<_>>();
+
     html!(
-        <DescriptionList>
-            <DescriptionGroup term="Trusted">{props.package.trusted.or_none()}</DescriptionGroup>
-        </DescriptionList>
+        if !vulns.is_empty() {
+            <Title level={Level::H3}>{ "Known vulnerabilities" } </Title>
+            <List r#type={ListType::Plain}>
+                {for vulns.into_iter().map(|v|{
+                    html!(<>
+                        <yew_nested_router::components::Link<AppRoute>
+                            target={AppRoute::Vulnerability { cve: v.cve.to_string() }}
+                        >
+                            { &v.cve }
+                        </yew_nested_router::components::Link<AppRoute>>
+                    </>)
+                })}
+            </List>
+        }
     )
 }
 
@@ -172,7 +218,7 @@ fn package_versions(props: &PackageVersionsProperties) -> Html {
         versions.push(PackageVersion { version, purl, pkg });
     }
 
-    // do numeric version sorting
+    // FIXME: do numeric version sorting
     versions.sort_unstable_by(|a, b| a.version.cmp(&b.version).reverse());
 
     html!(
@@ -185,7 +231,7 @@ fn package_versions(props: &PackageVersionsProperties) -> Html {
                         {&v.version}
                     </yew_nested_router::components::Link<AppRoute>>
                     if v.pkg.trusted.unwrap_or_default() {
-                        {" "}<Label color={Color::Gold} label="Trusted"/>
+                        {" "}<Trusted/>
                     }
                 </>)
             })}
