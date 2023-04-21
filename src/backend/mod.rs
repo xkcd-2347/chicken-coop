@@ -44,7 +44,7 @@ impl PackageService {
 
     pub async fn versions<'a, I>(&self, purls: I) -> Result<Vec<PackageRef>, Error>
     where
-        I: IntoIterator<Item = PackageUrl<'a>>,
+        I: IntoIterator<Item = &'a PackageUrl<'a>>,
     {
         let purls = PackageList(
             purls

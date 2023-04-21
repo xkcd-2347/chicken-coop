@@ -21,12 +21,12 @@ wasm-bindgen = "0.2"
 wasm-logger = "0.2"
 yew = { version = "0.20", features = ["csr"] }
 yew-hooks = "0.2"
-yew-more-hooks = { version = "0.1.1", features = ["yew-hooks"] }
+yew-more-hooks = { version = "0.1.2", features = ["yew-hooks"] }
 yew-nested-router = "0.2.1"
 
 [patch.crates-io]
 #yew-nested-router = { path = "../yew-nested-router" }
 yew-nested-router = { git = "https://github.com/ctron/yew-nested-router", rev = "9689db446dee7030325884df768d0c2e84f353d6" }
-yew-more-hooks = { git = "https://github.com/ctron/yew-more-hooks", rev = "1da4ae48e844622288550000a8f7a98cfe58025d" }
+yew-more-hooks = { git = "https://github.com/ctron/yew-more-hooks", rev = "bffc7441de7e4743a58b639b7fb91fa03523e54f" }
 #yew-more-hooks = { path = "../yew-more-hooks" }
 patternfly-yew = { git = "https://github.com/ctron/patternfly-yew", rev = "8d1a92b08d128f83143bacf2aeb3df3ebe343600" }

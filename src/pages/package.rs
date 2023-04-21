@@ -75,24 +75,20 @@ fn package_information(props: &PackageInformationProperties) -> Html {
 
     let fetch_package = {
         let backend = backend.clone();
-        let purl = props.purl.clone();
-        use_async_with_options(
-            async move { PackageService::new((*backend).clone()).lookup(&purl).await },
-            UseAsyncOptions::enable_auto(),
+        use_async_with_cloned_deps(
+            |purl| async move { PackageService::new((*backend).clone()).lookup(&purl).await },
+            props.purl.clone(),
         )
     };
 
-    let fetch_versions = {
-        let purl = props.purl.clone();
-        use_async_with_options(
-            async move {
-                PackageService::new((*backend).clone())
-                    .versions([purl])
-                    .await
-            },
-            UseAsyncOptions::enable_auto(),
-        )
-    };
+    let fetch_versions = use_async_with_cloned_deps(
+        |purl| async move {
+            PackageService::new((*backend).clone())
+                .versions([&purl])
+                .await
+        },
+        props.purl.clone(),
+    );
 
     html!(
         <Grid gutter=true>
