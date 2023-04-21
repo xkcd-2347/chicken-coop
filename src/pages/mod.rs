@@ -20,5 +20,7 @@ pub enum AppRoute {
     Package {
         package: String,
     },
-    Vulnerability,
+    Vulnerability {
+        cve: String,
+    },
 }

@@ -26,6 +26,7 @@ pub fn console() -> Html {
                     </NavExpandable>
                     <NavExpandable title="Investigate">
                         <NavRouterItem<AppRoute> to={AppRoute::Package{package: Default::default()}} predicate={AppRoute::is_package}>{ "Packages" }</NavRouterItem<AppRoute>>
+                        <NavRouterItem<AppRoute> to={AppRoute::Vulnerability{cve: Default::default()}} predicate={AppRoute::is_vulnerability}>{ "Vulnerabilities" }</NavRouterItem<AppRoute>>
                     </NavExpandable>
                 </NavList>
             </Nav>
@@ -76,6 +77,6 @@ fn render(route: AppRoute) -> Html {
         AppRoute::Index => html!(<pages::Index/>),
         AppRoute::Chicken => html!(<pages::Chicken/>),
         AppRoute::Package { package } => html!(<pages::Package {package}/>),
-        AppRoute::Vulnerability => html!(<pages::Vulnerability/>),
+        AppRoute::Vulnerability { cve } => html!(<pages::Vulnerability {cve}/>),
     }
 }

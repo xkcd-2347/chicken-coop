@@ -1,6 +1,6 @@
 pub mod data;
 
-use crate::backend::data::{Package, PackageList, PackageRef};
+use crate::backend::data::{Package, Vulnerability, PackageList, PackageRef};
 use packageurl::PackageUrl;
 use url::{ParseError, Url};
 
@@ -57,6 +57,32 @@ impl PackageService {
             .client
             .post(self.backend.url.join("/api/package/versions")?)
             .json(&purls)
+            .send()
+            .await?
+            .error_for_status()?
+            .json()
+            .await?)
+    }
+}
+
+pub struct VulnerabilityService {
+    backend: Backend,
+    client: reqwest::Client,
+}
+
+impl VulnerabilityService {
+    pub fn new(backend: Backend) -> Self {
+        Self {
+            backend,
+            client: reqwest::Client::new(),
+        }
+    }
+
+    pub async fn lookup(&self, cve: &String) -> Result<Vulnerability, Error> {
+        Ok(self
+            .client
+            .get(self.backend.url.join("/api/vulnerability")?)
+            .query(&[("cve", cve.to_string())])
             .send()
             .await?
             .error_for_status()?
