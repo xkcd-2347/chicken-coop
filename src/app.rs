@@ -1,6 +1,5 @@
 use crate::{components::backend::Backend, console::Console, pages::AppRoute};
 use patternfly_yew::prelude::*;
-use url::Url;
 use yew::prelude::*;
 use yew_nested_router::prelude::*;
 

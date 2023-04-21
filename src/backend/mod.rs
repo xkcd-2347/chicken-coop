@@ -1,6 +1,6 @@
 pub mod data;
 
-use crate::backend::data::Package;
+use crate::backend::data::{Package, PackageList, PackageRef};
 use packageurl::PackageUrl;
 use url::{ParseError, Url};
 
@@ -35,6 +35,28 @@ impl PackageService {
             .client
             .get(self.backend.url.join("/api/package")?)
             .query(&[("purl", purl.to_string())])
+            .send()
+            .await?
+            .error_for_status()?
+            .json()
+            .await?)
+    }
+
+    pub async fn versions<'a, I>(&self, purls: I) -> Result<Vec<PackageRef>, Error>
+    where
+        I: IntoIterator<Item = PackageUrl<'a>>,
+    {
+        let purls = PackageList(
+            purls
+                .into_iter()
+                .map(|purl| purl.to_string())
+                .collect::<Vec<_>>(),
+        );
+
+        Ok(self
+            .client
+            .post(self.backend.url.join("/api/package/versions")?)
+            .json(&purls)
             .send()
             .await?
             .error_for_status()?
