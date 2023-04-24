@@ -1,4 +1,4 @@
-use crate::{backend::data, pages::AppRoute};
+use crate::{backend::data, components::Trusted, pages::AppRoute};
 use packageurl::PackageUrl;
 use patternfly_yew::prelude::*;
 use std::str::FromStr;
@@ -21,12 +21,17 @@ impl TableEntryRenderer for PackageRef {
     fn render_cell(&self, context: &CellContext) -> Cell {
         match context.column {
             0 => html!(
-                <Link<AppRoute> target={AppRoute::Package {package: self.pkg.purl.clone()}}>{&self.label}</Link<AppRoute>>
+                <>
+                    <Link<AppRoute> target={AppRoute::Package {package: self.pkg.purl.clone()}}>{&self.label}</Link<AppRoute>>
+                    if let Some(true) = &self.pkg.trusted {
+                        <Trusted />
+                    }
+                </>
             ),
             1 => self.purl.version().map(Html::from).unwrap_or_default(),
             2 => html!(self.purl.ty()),
             3 => html!( {
-                for self.purl.qualifiers().iter().map(|(k,v)|html!(
+                for self.purl.qualifiers().iter().map(|(k,v)| html!(
                     <Label label={format!("{k}={v}")} />
                 ))
             }),
