@@ -7,10 +7,9 @@ use lookup::*;
 use std::ops::Deref;
 use versions::*;
 
-use crate::backend::data::PackageRef;
 use crate::{
     backend::{
-        data::{self},
+        data::{self, PackageDependencies, PackageRef},
         Backend, PackageService,
     },
     components::Trusted,
@@ -43,8 +42,12 @@ pub fn package(props: &PackageProperties) -> Html {
     html!(
         <>
             <PageSection variant={PageSectionVariant::Light} sticky={[PageSectionSticky::Top]} >
+                if let Some(purl) = purl(&props.package) {
+                    <Title size={Size::XXXXLarge}>{package_title(purl)}</Title>
+                } else {
+                    <Title size={Size::XXXXLarge}>{"Packages"}</Title>
+                }
                 <Content>
-                    <Title size={Size::XXXXLarge}>{"Package"}</Title>
                     <p>{ "Get detailed package information" }</p>
                 </Content>
             </PageSection>
@@ -66,6 +69,26 @@ pub fn package(props: &PackageProperties) -> Html {
                     </Bullseye>
                 }
             </PageSection>
+        </>
+    )
+}
+
+fn package_title(purl: PackageUrl) -> Html {
+    let title = match purl.namespace() {
+        Some(namespace) => format!("{namespace} : {name}", name = purl.name()),
+        None => purl.name().to_string(),
+    };
+
+    let mut title = vec![];
+    Extend::extend(&mut title, purl.namespace());
+    title.push(purl.name());
+    Extend::extend(&mut title, purl.version());
+
+    html!(
+        <>
+            { title.join(" : ") }
+            {" "}
+            <Label label={purl.ty().to_string()} color={Color::Blue}/>
         </>
     )
 }
@@ -125,22 +148,43 @@ fn package_information(props: &PackageInformationProperties) -> Html {
         )
     };
 
-    let title = match props.purl.namespace().clone() {
+    let pkg_name = match props.purl.namespace().clone() {
         Some(namespace) => html!(<> {namespace} {" : "} {props.purl.name()} </>),
         None => html!(props.purl.name()),
     };
 
     html!(
         <Grid gutter=true>
-            <GridItem>
+            <GridItem cols={[9]}>
+                <Card compact=true>
+                    <Tabs>
+                        <Tab label={remote_refs_count_title(&fetch_deps_out, |data|data.first(), "Dependency", "Dependencies")}>
+                            { remote_content(&fetch_deps_out, |data| html!(
+                                <PackageReferences refs={data.first().cloned().map(|d|d.0).unwrap_or_default()} />
+                            )) }
+                        </Tab>
+
+                        <Tab label={remote_refs_count_title(&fetch_deps_in, |data|data.first(), "Dependent", "Dependents")}>
+                            { remote_content(&fetch_deps_in, |data| html!(
+                                <PackageReferences refs={data.first().cloned().map(|d|d.0).unwrap_or_default()} />
+                            )) }
+                        </Tab>
+                    </Tabs>
+                </Card>
+            </GridItem>
+
+            <GridItem cols={[3]}>
                 <Gallery style="--pf-l-gallery--GridTemplateColumns--min: 500px;" gutter=true>
 
                     <Card
-                        title={html!(<Title size={Size::XLarge}>{ title } {" "} <Label label={props.purl.ty().to_string()} color={Color::Blue}/></Title>)}
+                        title={html!(<Title size={Size::XLarge}>{ pkg_name }</Title>)}
                     >
                         <Clipboard readonly=true code=true value={props.purl.to_string()} />
                         <DescriptionList>
                             <DescriptionGroup term="Version">{props.purl.version().clone().or_none()}</DescriptionGroup>
+                            if let Some(path) = props.purl.subpath() {
+                                <DescriptionGroup term="Path">{path}</DescriptionGroup>
+                            }
                             { for props.purl.qualifiers().iter().map(|(k, v)|{
                                 html!(<DescriptionGroup term={k.to_string()}> { v } </DescriptionGroup>)
                             })}
@@ -165,22 +209,41 @@ fn package_information(props: &PackageInformationProperties) -> Html {
                         <PackageVersions versions={data.clone()}/>
                     )) }
 
-                    { remote_card(&fetch_deps_out, |data|
-                        remote_card_title_badge("Dependencies", refs_count(data)),
-                    |data| html!(
-                        <PackageReferences refs={data.first().cloned().map(|d|d.0).unwrap_or_default()} />
-                    )) }
-
-                    { remote_card(&fetch_deps_in, |data|
-                        remote_card_title_badge("Dependents", refs_count(data)),
-                    |data| html!(
-                        <PackageReferences refs={data.first().cloned().map(|d|d.0).unwrap_or_default()} />
-                    )) }
-
                 </Gallery>
             </GridItem>
         </Grid>
     )
+}
+
+fn remote_refs_count_title<T, E, F, R>(
+    fetch: &UseAsyncHandleDeps<T, E>,
+    f: F,
+    singular: &str,
+    plural: &str,
+) -> String
+where
+    F: FnOnce(&T) -> Option<&R>,
+    R: Deref<Target = [PackageRef]>,
+{
+    match &**fetch {
+        UseAsyncState::Ready(Ok(data)) => match f(data).map(|r| r.len()) {
+            Some(1) => format!("1 {singular}"),
+            Some(len) => format!("{len} {plural}"),
+            None => plural.to_string(),
+        },
+        _ => plural.to_string(),
+    }
+}
+
+fn refs_count_title<T>(data: Option<&Vec<T>>, singular: &str, plural: &str) -> String
+where
+    T: Deref<Target = [PackageRef]>,
+{
+    match refs_count(data) {
+        Some(1) => format!("1 {singular}"),
+        Some(len) => format!("{len} {plural}"),
+        None => plural.to_string(),
+    }
 }
 
 fn refs_count<T>(data: Option<&Vec<T>>) -> Option<usize>
@@ -199,26 +262,32 @@ fn remote_card_title_badge(title: &str, entries: Option<usize>) -> Html {
     </>)
 }
 
-fn remote_card<T, E, FT, FB>(fetch: &UseAsyncHandleDeps<T, E>, title: FT, body: FB) -> Html
+fn remote_content<T, E, FB>(fetch: &UseAsyncState<T, E>, body: FB) -> Html
+where
+    FB: FnOnce(&T) -> Html,
+    E: std::error::Error,
+{
+    match &*fetch {
+        UseAsyncState::Pending | UseAsyncState::Processing => html!(<Spinner/>),
+        UseAsyncState::Ready(Ok(data)) => body(data),
+        UseAsyncState::Ready(Err(err)) => html!(<>{"Failed to load: "} { err } </>),
+    }
+}
+
+fn remote_card<T, E, FT, FB>(fetch: &UseAsyncState<T, E>, title: FT, body: FB) -> Html
 where
     FT: FnOnce(Option<&T>) -> Html,
     FB: FnOnce(&T) -> Html,
     E: std::error::Error,
 {
-    let fetch = &**fetch;
+    let fetch = &*fetch;
     html!(
         <Card
             title={html!(<Title size={Size::XLarge}>
                 { title(fetch.data()) }
             </Title>)}
         >
-            {
-                match &*fetch {
-                    UseAsyncState::Pending | UseAsyncState::Processing => html!(<Spinner/>),
-                    UseAsyncState::Ready(Ok(data)) => body(data),
-                    UseAsyncState::Ready(Err(err)) => html!(<>{"Failed to load: "} { err } </>),
-                }
-            }
+            { remote_content(fetch, body) }
         </Card>
     )
 }
