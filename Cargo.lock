@@ -1920,7 +1920,7 @@ dependencies = [
 [[package]]
 name = "yew-more-hooks"
 version = "0.1.2"
-source = "git+https://github.com/ctron/yew-more-hooks?rev=bffc7441de7e4743a58b639b7fb91fa03523e54f#bffc7441de7e4743a58b639b7fb91fa03523e54f"
+source = "git+https://github.com/ctron/yew-more-hooks?rev=f54aa9bb2eaffb5a02d1528dc8f47346211ded7f#f54aa9bb2eaffb5a02d1528dc8f47346211ded7f"
 dependencies = [
  "gloo-utils",
  "wasm-bindgen-futures",

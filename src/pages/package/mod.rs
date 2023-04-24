@@ -4,8 +4,10 @@ mod versions;
 
 use deps::*;
 use lookup::*;
+use std::ops::Deref;
 use versions::*;
 
+use crate::backend::data::PackageRef;
 use crate::{
     backend::{
         data::{self},
@@ -132,6 +134,7 @@ fn package_information(props: &PackageInformationProperties) -> Html {
         <Grid gutter=true>
             <GridItem>
                 <Gallery style="--pf-l-gallery--GridTemplateColumns--min: 500px;" gutter=true>
+
                     <Card
                         title={html!(<Title size={Size::XLarge}>{ title } {" "} <Label label={props.purl.ty().to_string()} color={Color::Blue}/></Title>)}
                     >
@@ -143,77 +146,80 @@ fn package_information(props: &PackageInformationProperties) -> Html {
                             })}
                         </DescriptionList>
                     </Card>
-                    <Card
-                        title={html!(<Title size={Size::XLarge}>
+
+                    { remote_card(&fetch_package, |data|
+                        html!(<>
                             {"Support"}
-                            if let UseAsyncState::Ready(Ok(data::Package{trusted: Some(true), ..})) = &*fetch_package {
+                            if let Some(data::Package{trusted: Some(true), ..}) = data {
                                 {" "} <Trusted/>
                             }
-                        </Title>)}
-                    >
-                        {
-                            match &*fetch_package {
-                                UseAsyncState::Pending | UseAsyncState::Processing => html!(<Spinner/>),
-                                UseAsyncState::Ready(Ok(data)) => html!(
-                                    <>
-                                        <PackageDetails package={data.clone()}/>
-                                        <PackageVulnerabilities package={data.clone()}/>
-                                    </>
-                                ),
-                                UseAsyncState::Ready(Err(err)) => html!(<>{"Failed to load: "} { err } </>),
-                            }
-                        }
-                    </Card>
-                    <Card
-                        title={html!(<Title size={Size::XLarge}>{"Versions"}</Title>)}
-                    >
-                        {
-                            match &*fetch_versions {
-                                UseAsyncState::Pending | UseAsyncState::Processing => html!(<Spinner/>),
-                                UseAsyncState::Ready(Ok(data)) => html!(<PackageVersions versions={data.clone()}/>),
-                                UseAsyncState::Ready(Err(err)) => html!(<>{"Failed to load: "} { err } </>),
-                            }
-                        }
-                    </Card>
-                    <Card
-                        title={html!(<Title size={Size::XLarge}>
-                            {"Dependencies"}
-                            if let UseAsyncState::Ready(Ok(data)) = &*fetch_deps_out {
-                                { " " } <Badge read=true> { data.first().as_ref().map(|d|d.0.len()).unwrap_or_default() } </Badge>
-                            }
-                        </Title>)}
-                    >
-                        {
-                            match &*fetch_deps_out {
-                                UseAsyncState::Pending | UseAsyncState::Processing => html!(<Spinner/>),
-                                UseAsyncState::Ready(Ok(data)) => html!(<PackageReferences
-                                    refs={data.first().cloned().map(|d|d.0).unwrap_or_default()}
-                                />),
-                                UseAsyncState::Ready(Err(err)) => html!(<>{"Failed to load: "} { err } </>),
-                            }
-                        }
-                    </Card>
-                    <Card
-                        title={html!(<Title size={Size::XLarge}>
-                            {"Dependents"}
-                            if let UseAsyncState::Ready(Ok(data)) = &*fetch_deps_in {
-                                { " " } <Badge read=true> { data.first().as_ref().map(|d|d.0.len()).unwrap_or_default() } </Badge>
-                            }
-                        </Title>)}
-                    >
-                        {
-                            match &*fetch_deps_in {
-                                UseAsyncState::Pending | UseAsyncState::Processing => html!(<Spinner/>),
-                                UseAsyncState::Ready(Ok(data)) => html!(<PackageReferences
-                                    refs={data.first().cloned().map(|d|d.0).unwrap_or_default()}
-                                />),
-                                UseAsyncState::Ready(Err(err)) => html!(<>{"Failed to load: "} { err } </>),
-                            }
-                        }
-                    </Card>
+                        </>),
+                    |data| html!( <>
+                        <PackageDetails package={data.clone()}/>
+                        <PackageVulnerabilities package={data.clone()}/>
+                    </> )) }
+
+                    { remote_card(&fetch_versions, |data|
+                        remote_card_title_badge("Versions", data.map(|r|r.len())),
+                    |data| html!(
+                        <PackageVersions versions={data.clone()}/>
+                    )) }
+
+                    { remote_card(&fetch_deps_out, |data|
+                        remote_card_title_badge("Dependencies", refs_count(data)),
+                    |data| html!(
+                        <PackageReferences refs={data.first().cloned().map(|d|d.0).unwrap_or_default()} />
+                    )) }
+
+                    { remote_card(&fetch_deps_in, |data|
+                        remote_card_title_badge("Dependents", refs_count(data)),
+                    |data| html!(
+                        <PackageReferences refs={data.first().cloned().map(|d|d.0).unwrap_or_default()} />
+                    )) }
+
                 </Gallery>
             </GridItem>
         </Grid>
+    )
+}
+
+fn refs_count<T>(data: Option<&Vec<T>>) -> Option<usize>
+where
+    T: Deref<Target = [PackageRef]>,
+{
+    data.map(|d| d.first().map(|r| r.len()).unwrap_or_default())
+}
+
+fn remote_card_title_badge(title: &str, entries: Option<usize>) -> Html {
+    html!(<>
+        {title}
+        if let Some(entries) = entries {
+            { " " } <Badge read=true> { entries } </Badge>
+        }
+    </>)
+}
+
+fn remote_card<T, E, FT, FB>(fetch: &UseAsyncHandleDeps<T, E>, title: FT, body: FB) -> Html
+where
+    FT: FnOnce(Option<&T>) -> Html,
+    FB: FnOnce(&T) -> Html,
+    E: std::error::Error,
+{
+    let fetch = &**fetch;
+    html!(
+        <Card
+            title={html!(<Title size={Size::XLarge}>
+                { title(fetch.data()) }
+            </Title>)}
+        >
+            {
+                match &*fetch {
+                    UseAsyncState::Pending | UseAsyncState::Processing => html!(<Spinner/>),
+                    UseAsyncState::Ready(Ok(data)) => body(data),
+                    UseAsyncState::Ready(Err(err)) => html!(<>{"Failed to load: "} { err } </>),
+                }
+            }
+        </Card>
     )
 }
 
