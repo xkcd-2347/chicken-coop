@@ -24,9 +24,14 @@ yew-hooks = "0.2"
 yew-more-hooks = { version = "0.1.2", features = ["yew-hooks"] }
 yew-nested-router = "0.2.1"
 
+trust-api-model = "0.1.0"
+
 [patch.crates-io]
 #yew-nested-router = { path = "../yew-nested-router" }
 yew-nested-router = { git = "https://github.com/ctron/yew-nested-router", rev = "9689db446dee7030325884df768d0c2e84f353d6" }
 yew-more-hooks = { git = "https://github.com/ctron/yew-more-hooks", rev = "f54aa9bb2eaffb5a02d1528dc8f47346211ded7f" }
 #yew-more-hooks = { path = "../yew-more-hooks" }
 patternfly-yew = { git = "https://github.com/ctron/patternfly-yew", rev = "8d1a92b08d128f83143bacf2aeb3df3ebe343600" }
+
+trust-api-model = { git = "https://github.com/xkcd-2347/trust-api", rev = "09261f51633312c02f5b461b037254a3738c9693" }
+#trust-api-model = { path = "../trust-api/trust-api-model"}

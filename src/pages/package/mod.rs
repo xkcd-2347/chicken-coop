@@ -8,10 +8,7 @@ use std::ops::Deref;
 use versions::*;
 
 use crate::{
-    backend::{
-        data::{self, PackageDependencies, PackageRef},
-        Backend, PackageService,
-    },
+    backend::{data, Backend, PackageService},
     components::Trusted,
     pages::AppRoute,
     utils::RenderOptional,
@@ -74,11 +71,6 @@ pub fn package(props: &PackageProperties) -> Html {
 }
 
 fn package_title(purl: PackageUrl) -> Html {
-    let title = match purl.namespace() {
-        Some(namespace) => format!("{namespace} : {name}", name = purl.name()),
-        None => purl.name().to_string(),
-    };
-
     let mut title = vec![];
     Extend::extend(&mut title, purl.namespace());
     title.push(purl.name());
@@ -239,24 +231,6 @@ where
         },
         _ => plural.to_string(),
     }
-}
-
-fn refs_count_title<T>(data: Option<&Vec<T>>, singular: &str, plural: &str) -> String
-where
-    T: Deref<Target = [PackageRef]>,
-{
-    match refs_count(data) {
-        Some(1) => format!("1 {singular}"),
-        Some(len) => format!("{len} {plural}"),
-        None => plural.to_string(),
-    }
-}
-
-fn refs_count<T>(data: Option<&Vec<T>>) -> Option<usize>
-where
-    T: Deref<Target = [PackageRef]>,
-{
-    data.map(|d| d.first().map(|r| r.len()).unwrap_or_default())
 }
 
 fn remote_card_title_badge(title: &str, entries: Option<usize>) -> Html {

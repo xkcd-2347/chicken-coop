@@ -1,4 +1,8 @@
-pub mod data;
+// pub mod data;
+
+pub mod data {
+    pub use trust_api_model::prelude::*;
+}
 
 use crate::backend::data::{
     Package, PackageDependencies, PackageDependents, PackageList, PackageRef, Vulnerability,
