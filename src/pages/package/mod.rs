@@ -169,6 +169,12 @@ fn package_information(props: &PackageInformationProperties) -> Html {
                                 <PackageReferences refs={data.first().cloned().map(|d|d.0).unwrap_or_default()} />
                             )) }
                         </Tab>
+
+                        <Tab label={remote_refs_count_title(&fetch_package, |data|Some(&data.vulnerabilities), "Vulnerability", "Vulnerabilities")}>
+                            { remote_content(&fetch_package, |data| html!(
+                                <PackageVulnerabilities package={data.clone()} />
+                            )) }
+                        </Tab>
                     </Tabs>
                 </Card>
             </GridItem>
@@ -215,7 +221,7 @@ fn package_information(props: &PackageInformationProperties) -> Html {
     )
 }
 
-fn remote_refs_count_title<T, E, F, R>(
+fn remote_refs_count_title<T, E, F, R, X>(
     fetch: &UseAsyncHandleDeps<T, E>,
     f: F,
     singular: &str,
@@ -223,7 +229,7 @@ fn remote_refs_count_title<T, E, F, R>(
 ) -> String
 where
     F: FnOnce(&T) -> Option<&R>,
-    R: Deref<Target = [PackageRef]>,
+    R: Deref<Target = [X]>,
 {
     match &**fetch {
         UseAsyncState::Ready(Ok(data)) => match f(data).map(|r| r.len()) {
