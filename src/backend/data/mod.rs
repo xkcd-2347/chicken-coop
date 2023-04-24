@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::ops::Deref;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Package {
@@ -53,8 +54,24 @@ pub struct SnykData;
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PackageDependencies(pub Vec<PackageRef>);
 
+impl Deref for PackageDependencies {
+    type Target = [PackageRef];
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PackageDependents(pub Vec<PackageRef>);
+
+impl Deref for PackageDependents {
+    type Target = [PackageRef];
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PackageList(pub Vec<String>);

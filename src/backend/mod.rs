@@ -1,7 +1,10 @@
 pub mod data;
 
-use crate::backend::data::{Package, PackageList, PackageRef, Vulnerability};
+use crate::backend::data::{
+    Package, PackageDependencies, PackageDependents, PackageList, PackageRef, Vulnerability,
+};
 use packageurl::PackageUrl;
+use serde::Deserialize;
 use url::{ParseError, Url};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -46,6 +49,29 @@ impl PackageService {
     where
         I: IntoIterator<Item = &'a PackageUrl<'a>>,
     {
+        self.batch_to_refs("/api/package/versions", purls).await
+    }
+
+    pub async fn dependencies<'a, I>(&self, purls: I) -> Result<Vec<PackageDependencies>, Error>
+    where
+        I: IntoIterator<Item = &'a PackageUrl<'a>>,
+    {
+        self.batch_to_refs("/api/package/dependencies", purls).await
+    }
+
+    pub async fn dependents<'a, I>(&self, purls: I) -> Result<Vec<PackageDependents>, Error>
+    where
+        I: IntoIterator<Item = &'a PackageUrl<'a>>,
+    {
+        self.batch_to_refs("/api/package/dependents", purls).await
+    }
+
+    /// common call of getting some refs for a batch of purls
+    async fn batch_to_refs<'a, I, R>(&self, path: &str, purls: I) -> Result<R, Error>
+    where
+        I: IntoIterator<Item = &'a PackageUrl<'a>>,
+        for<'de> R: Deserialize<'de>,
+    {
         let purls = PackageList(
             purls
                 .into_iter()
@@ -55,7 +81,7 @@ impl PackageService {
 
         Ok(self
             .client
-            .post(self.backend.url.join("/api/package/versions")?)
+            .post(self.backend.url.join(path)?)
             .json(&purls)
             .send()
             .await?
