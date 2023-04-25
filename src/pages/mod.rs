@@ -5,11 +5,13 @@ use yew_nested_router::Target;
 mod chicken;
 mod index;
 mod package;
+mod sbom;
 mod vulnerability;
 
 pub use chicken::*;
 pub use index::*;
 pub use package::*;
+pub use sbom::*;
 pub use vulnerability::*;
 
 #[derive(Clone, Debug, PartialEq, Eq, Target)]
@@ -23,4 +25,5 @@ pub enum AppRoute {
     Vulnerability {
         cve: String,
     },
+    SBOM,
 }

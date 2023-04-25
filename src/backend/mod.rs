@@ -37,7 +37,7 @@ impl PackageService {
         }
     }
 
-    pub async fn lookup(&self, purl: &PackageUrl<'_>) -> Result<Package, Error> {
+    pub async fn lookup(&self, purl: PackageUrl<'_>) -> Result<Package, Error> {
         Ok(self
             .client
             .get(self.backend.url.join("/api/package")?)
@@ -49,23 +49,30 @@ impl PackageService {
             .await?)
     }
 
+    pub async fn lookup_batch<'a, I>(&self, purls: I) -> Result<Vec<PackageRef>, Error>
+    where
+        I: IntoIterator<Item = PackageUrl<'a>>,
+    {
+        self.batch_to_refs("/api/package", purls).await
+    }
+
     pub async fn versions<'a, I>(&self, purls: I) -> Result<Vec<PackageRef>, Error>
     where
-        I: IntoIterator<Item = &'a PackageUrl<'a>>,
+        I: IntoIterator<Item = PackageUrl<'a>>,
     {
         self.batch_to_refs("/api/package/versions", purls).await
     }
 
     pub async fn dependencies<'a, I>(&self, purls: I) -> Result<Vec<PackageDependencies>, Error>
     where
-        I: IntoIterator<Item = &'a PackageUrl<'a>>,
+        I: IntoIterator<Item = PackageUrl<'a>>,
     {
         self.batch_to_refs("/api/package/dependencies", purls).await
     }
 
     pub async fn dependents<'a, I>(&self, purls: I) -> Result<Vec<PackageDependents>, Error>
     where
-        I: IntoIterator<Item = &'a PackageUrl<'a>>,
+        I: IntoIterator<Item = PackageUrl<'a>>,
     {
         self.batch_to_refs("/api/package/dependents", purls).await
     }
@@ -73,7 +80,7 @@ impl PackageService {
     /// common call of getting some refs for a batch of purls
     async fn batch_to_refs<'a, I, R>(&self, path: &str, purls: I) -> Result<R, Error>
     where
-        I: IntoIterator<Item = &'a PackageUrl<'a>>,
+        I: IntoIterator<Item = PackageUrl<'a>>,
         for<'de> R: Deserialize<'de>,
     {
         let purls = PackageList(

@@ -18,20 +18,30 @@ strum = "0.24"
 thiserror = "1"
 url = "2"
 wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
 wasm-logger = "0.2"
 yew = { version = "0.20", features = ["csr"] }
 yew-hooks = "0.2"
 yew-more-hooks = { version = "0.1.2", features = ["yew-hooks"] }
 yew-nested-router = "0.2.1"
+cyclonedx-bom = "0.4"
 
 trust-api-model = "0.1.0"
+
+[dependencies.web-sys]
+version = "0.3.61"
+features = [
+    "DataTransfer",
+    "File",
+]
 
 [patch.crates-io]
 #yew-nested-router = { path = "../yew-nested-router" }
 yew-nested-router = { git = "https://github.com/ctron/yew-nested-router", rev = "9689db446dee7030325884df768d0c2e84f353d6" }
-yew-more-hooks = { git = "https://github.com/ctron/yew-more-hooks", rev = "f54aa9bb2eaffb5a02d1528dc8f47346211ded7f" }
+yew-more-hooks = { git = "https://github.com/ctron/yew-more-hooks", rev = "9f39517aabe25cfadae48f2d225daa1c3a608c20" }
 #yew-more-hooks = { path = "../yew-more-hooks" }
-patternfly-yew = { git = "https://github.com/ctron/patternfly-yew", rev = "8d1a92b08d128f83143bacf2aeb3df3ebe343600" }
+patternfly-yew = { git = "https://github.com/ctron/patternfly-yew", rev = "63756c8e38a1e4b486cfb00487316999b620c9fb" }
+#patternfly-yew = { path = "../patternfly-yew" }
 
 trust-api-model = { git = "https://github.com/xkcd-2347/trust-api", rev = "09261f51633312c02f5b461b037254a3738c9693" }
 #trust-api-model = { path = "../trust-api/trust-api-model"}

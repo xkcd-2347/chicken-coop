@@ -1,22 +1,19 @@
-mod deps;
 mod lookup;
 mod versions;
 
-use deps::*;
-use lookup::*;
-use std::ops::Deref;
-use versions::*;
-
 use crate::{
     backend::{data, Backend, PackageService},
-    components::Trusted,
+    components::{deps::PackageReferences, remote_content, Trusted},
     pages::AppRoute,
     utils::RenderOptional,
 };
+use lookup::*;
 use packageurl::PackageUrl;
 use patternfly_yew::prelude::*;
+use std::ops::Deref;
 use std::rc::Rc;
 use std::str::FromStr;
+use versions::*;
 use yew::prelude::*;
 use yew_more_hooks::hooks::r#async::*;
 
@@ -111,7 +108,7 @@ fn package_information(props: &PackageInformationProperties) -> Html {
     let fetch_package = {
         let service = service.clone();
         use_async_with_cloned_deps(
-            |purl| async move { service.lookup(&purl).await },
+            |purl| async move { service.lookup(purl).await },
             props.purl.clone(),
         )
     };
@@ -119,7 +116,7 @@ fn package_information(props: &PackageInformationProperties) -> Html {
     let fetch_versions = {
         let service = service.clone();
         use_async_with_cloned_deps(
-            |purl| async move { service.versions([&purl]).await },
+            |purl| async move { service.versions([purl]).await },
             props.purl.clone(),
         )
     };
@@ -127,7 +124,7 @@ fn package_information(props: &PackageInformationProperties) -> Html {
     let fetch_deps_out = {
         let service = service.clone();
         use_async_with_cloned_deps(
-            |purl| async move { service.dependencies([&purl]).await },
+            |purl| async move { service.dependencies([purl]).await },
             props.purl.clone(),
         )
     };
@@ -135,7 +132,7 @@ fn package_information(props: &PackageInformationProperties) -> Html {
     let fetch_deps_in = {
         let service = service.clone();
         use_async_with_cloned_deps(
-            |purl| async move { service.dependents([&purl]).await },
+            |purl| async move { service.dependents([purl]).await },
             props.purl.clone(),
         )
     };
@@ -240,18 +237,6 @@ fn remote_card_title_badge(title: &str, entries: Option<usize>) -> Html {
             { " " } <Badge read=true> { entries } </Badge>
         }
     </>)
-}
-
-fn remote_content<T, E, FB>(fetch: &UseAsyncState<T, E>, body: FB) -> Html
-where
-    FB: FnOnce(&T) -> Html,
-    E: std::error::Error,
-{
-    match &*fetch {
-        UseAsyncState::Pending | UseAsyncState::Processing => html!(<Spinner/>),
-        UseAsyncState::Ready(Ok(data)) => body(data),
-        UseAsyncState::Ready(Err(err)) => html!(<>{"Failed to load: "} { err } </>),
-    }
 }
 
 fn remote_card<T, E, FT, FB>(fetch: &UseAsyncState<T, E>, title: FT, body: FB) -> Html

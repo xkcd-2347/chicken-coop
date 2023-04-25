@@ -37,7 +37,7 @@ impl TableEntryRenderer for PackageRef {
             }),
             _ => html!(),
         }
-        .into()
+            .into()
     }
 }
 
@@ -76,20 +76,5 @@ pub fn package_refs(props: &PackageRefsProperties) -> Html {
             mode={TableMode::CompactNoBorders}
             {header} {entries}
         />
-        /*
-        <List r#type={ListType::Plain}>
-            {for refs.iter().map(|r|{
-                html!(<>
-                    <yew_nested_router::components::Link<AppRoute>
-                        target={AppRoute::Package { package: r.purl.to_string()}}
-                    >
-                        { &r.label }
-                    </yew_nested_router::components::Link<AppRoute>>
-                    if r.pkg.trusted.unwrap_or_default() {
-                        {" "}<Trusted/>
-                    }
-                </>)
-            })}
-        </List>*/
     )
 }
