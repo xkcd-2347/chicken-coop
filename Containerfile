@@ -18,5 +18,5 @@ RUN true \
 
 COPY --from=builder /usr/src/console/public /
 
-RUN chmod a+x /nginx.sh
-CMD ["/nginx.sh"]
+CMD ["/usr/sbin/nginx", "-g", "daemon off;"]
+
