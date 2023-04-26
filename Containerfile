@@ -8,15 +8,14 @@ WORKDIR /usr/src/console
 
 RUN true \
     && npm ci \
-    && trunk build \
-    && mv dist public
+    && trunk build --release --dist /public
 
 FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
 
 RUN true \
     && mkdir /public
 
-COPY --from=builder /usr/src/console/public /
+COPY --from=builder /public /
 
 CMD ["/usr/sbin/nginx", "-g", "daemon off;"]
 
