@@ -36,12 +36,12 @@ pub fn package(props: &PackageProperties) -> Html {
     html!(
         <>
             <PageSection variant={PageSectionVariant::Light} sticky={[PageSectionSticky::Top]} >
-                if let Some(purl) = purl(&props.package) {
-                    <Title size={Size::XXXXLarge}>{package_title(purl)}</Title>
-                } else {
-                    <Title size={Size::XXXXLarge}>{"Packages"}</Title>
-                }
                 <Content>
+                    if let Some(purl) = purl(&props.package) {
+                        <Title size={Size::XXXXLarge}>{package_title(purl)}</Title>
+                    } else {
+                        <Title size={Size::XXXXLarge}>{"Packages"}</Title>
+                    }
                     <p>{ "Get detailed package information" }</p>
                 </Content>
             </PageSection>
