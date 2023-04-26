@@ -17,7 +17,8 @@ RUN microdnf install -y nginx
 RUN true \
     && mkdir /public
 
-COPY --from=builder /public /usr/share/nginx/html/
+COPY --from=builder /public /public/
+COPY config/nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 80
 
