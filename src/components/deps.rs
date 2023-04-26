@@ -1,6 +1,7 @@
 use crate::{backend::data, components::Trusted, pages::AppRoute};
 use packageurl::PackageUrl;
 use patternfly_yew::prelude::*;
+use std::cmp::Ordering;
 use std::str::FromStr;
 use yew::prelude::*;
 use yew_nested_router::components::Link;
@@ -10,11 +11,37 @@ pub struct PackageRefsProperties {
     pub refs: Vec<data::PackageRef>,
 }
 
-#[derive(PartialEq)]
 struct PackageRef {
     label: String,
     purl: PackageUrl<'static>,
     pkg: data::PackageRef,
+}
+
+impl PartialEq for PackageRef {
+    fn eq(&self, other: &Self) -> bool {
+        self.pkg.purl == other.pkg.purl
+    }
+}
+
+impl Eq for PackageRef {}
+
+impl PartialOrd for PackageRef {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for PackageRef {
+    fn cmp(&self, other: &Self) -> Ordering {
+        let a = &self.purl;
+        let b = &other.purl;
+
+        a.ty()
+            .cmp(&b.ty())
+            .then_with(|| a.namespace().cmp(&b.namespace()))
+            .then_with(|| a.name().cmp(b.name()))
+            .then_with(|| a.version().cmp(&b.version()))
+    }
 }
 
 impl TableEntryRenderer for PackageRef {
@@ -59,6 +86,8 @@ pub fn package_refs(props: &PackageRefsProperties) -> Html {
             pkg: pkg.clone(),
         });
     }
+
+    refs.sort_unstable();
 
     let header = html_nested!(
         <TableHeader>
