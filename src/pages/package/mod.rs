@@ -263,8 +263,32 @@ pub struct PackageDetailsProperties {
 }
 
 #[function_component(PackageDetails)]
-fn package_details(_props: &PackageDetailsProperties) -> Html {
-    html!()
+fn package_details(props: &PackageDetailsProperties) -> Html {
+    let backend = use_context::<Rc<Backend>>()
+        .expect("Can only be called being wrapped by the 'Backend' component");
+
+    log::info!("SBOM: {:?}", props.package.sbom);
+
+    let sbom = props
+        .package
+        .sbom
+        .as_ref()
+        .and_then(|href| backend.join(&href).ok());
+
+    html!(
+        if let Some(sbom) = sbom {
+            <a
+                class={classes!("pf-c-button", "pf-m-link", "pf-m-inline")}
+                href={sbom.to_string()}
+                download={""}
+            >
+                <span class={classes!("pf-c-button__icon", "pf-m-start")}>
+                    { Icon::Download }
+                </span>
+                { "Download SBOM" }
+            </a>
+        }
+    )
 }
 
 #[function_component(PackageVulnerabilities)]
