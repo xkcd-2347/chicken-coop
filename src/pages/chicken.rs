@@ -5,7 +5,7 @@ use yew::prelude::*;
 pub fn chicken() -> Html {
     html!(
         <>
-            <PageSection sticky={[PageSectionSticky::Top]} >
+            <PageSection sticky={[PageSectionSticky::Top]} variant={PageSectionVariant::Light} >
                 <Content>
                     <Title size={Size::XXXXLarge}>{"Chickens"}</Title>
                     <p>{ "Bock, Bock!" }</p>
