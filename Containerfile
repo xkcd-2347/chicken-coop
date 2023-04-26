@@ -17,7 +17,8 @@ RUN microdnf install -y nginx
 RUN true \
     && mkdir /public
 
-COPY --from=builder /public /
+COPY --from=builder /public /usr/share/nginx/html/
+
+EXPOSE 80
 
 CMD ["/usr/sbin/nginx", "-g", "daemon off;"]
-
