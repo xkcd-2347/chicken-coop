@@ -1,0 +1,24 @@
+kind: BuildConfig
+apiVersion: build.openshift.io/v1
+metadata:
+  name: console
+  labels:
+    app.kubernetes.io/name: console
+    app.kubernetes.io/component: frontend
+    app.kubernetes.io/part-of: trusted
+spec:
+  triggers:
+    - type: ImageChange
+  source:
+    git:
+      uri: https://github.com/xkcd-2347/chicken-coop
+  strategy:
+    dockerStrategy:
+      dockerfilePath: Containerfile
+      from:
+        kind: ImageStreamTag
+        name: "ubi9-minimal:latest"
+  output:
+    to:
+      kind: ImageStreamTag
+      name: console:latest

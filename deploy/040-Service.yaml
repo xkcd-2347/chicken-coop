@@ -1,0 +1,18 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: console
+  labels:
+    app.kubernetes.io/name: console
+    app.kubernetes.io/component: frontend
+    app.kubernetes.io/part-of: trusted
+spec:
+  selector:
+    app.kubernetes.io/name: console
+    app.kubernetes.io/component: frontend
+    app.kubernetes.io/part-of: trusted
+  type: ClusterIP
+  ports:
+    - port: 8080
+      name: service
+      targetPort: service

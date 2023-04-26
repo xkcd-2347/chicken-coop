@@ -1,0 +1,17 @@
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: console
+  labels:
+    app.kubernetes.io/name: console
+    app.kubernetes.io/component: frontend
+    app.kubernetes.io/part-of: trusted
+spec:
+  to:
+    kind: Service
+    name: console
+  port:
+    targetPort: service
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
