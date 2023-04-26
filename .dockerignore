@@ -2,4 +2,6 @@
 /target/
 /node_modules/
 /dist/
+.dockerignore
 Containerfile
+/deploy/
