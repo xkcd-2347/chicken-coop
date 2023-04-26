@@ -989,7 +989,7 @@ dependencies = [
 [[package]]
 name = "patternfly-yew"
 version = "0.4.1"
-source = "git+https://github.com/ctron/patternfly-yew?rev=63756c8e38a1e4b486cfb00487316999b620c9fb#63756c8e38a1e4b486cfb00487316999b620c9fb"
+source = "git+https://github.com/ctron/patternfly-yew?rev=e5b48d19a0e871645dc14c263c27e5c1c0346012#e5b48d19a0e871645dc14c263c27e5c1c0346012"
 dependencies = [
  "chrono",
  "gloo-events",
@@ -1581,7 +1581,7 @@ dependencies = [
 [[package]]
 name = "trust-api-model"
 version = "0.1.0"
-source = "git+https://github.com/xkcd-2347/trust-api?rev=09261f51633312c02f5b461b037254a3738c9693#09261f51633312c02f5b461b037254a3738c9693"
+source = "git+https://github.com/xkcd-2347/trust-api?rev=7e6ac991a84a914896e9ffa874952f4bb769d750#7e6ac991a84a914896e9ffa874952f4bb769d750"
 dependencies = [
  "chrono",
  "serde",
@@ -2073,7 +2073,8 @@ dependencies = [
 [[package]]
 name = "yew-nested-router"
 version = "0.2.1"
-source = "git+https://github.com/ctron/yew-nested-router?rev=9689db446dee7030325884df768d0c2e84f353d6#9689db446dee7030325884df768d0c2e84f353d6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "45f7be228811c90d7183759ba756ee071a77c57c4345cd107bc8e2ddea392631"
 dependencies = [
  "gloo-history",
  "gloo-utils",
@@ -2088,7 +2089,8 @@ dependencies = [
 [[package]]
 name = "yew-nested-router-macros"
 version = "0.2.1"
-source = "git+https://github.com/ctron/yew-nested-router?rev=9689db446dee7030325884df768d0c2e84f353d6#9689db446dee7030325884df768d0c2e84f353d6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "14d76355935df1e20c3c77e3efdccbfd6d3773735adee66626d8a83bb0bf6db2"
 dependencies = [
  "convert_case",
  "darling",
