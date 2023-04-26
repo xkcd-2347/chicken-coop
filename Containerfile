@@ -12,6 +12,8 @@ RUN true \
 
 FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
 
+RUN microdnf install -y nginx
+
 RUN true \
     && mkdir /public
 
