@@ -6,7 +6,7 @@ use std::str::FromStr;
 use yew::prelude::*;
 use yew_nested_router::prelude::*;
 
-const DEFAULT_SEARCH: &str = "pkg:maven/io.quarkus/quarkus-core@2.13.7.Final-redhat-00003";
+const DEFAULT_SEARCH: &str = "pkg:maven/io.quarkus/quarkus-core@2.16.2.Final?type=jar";
 
 #[function_component(LookupPackageModal)]
 pub fn lookup_package_modal() -> Html {
@@ -237,7 +237,7 @@ fn maven(props: &PackageLookupProperties) -> Html {
     const DEFAULT_SEARCH: &str = r#"<dependency>
     <groupId>io.quarkus</groupId>
     <artifactId>quarkus-core</artifactId>
-    <version>2.13.7.Final-redhat-00003</version>
+    <version>2.16.2.Final</version>
 </dependency>"#;
 
     fn get_deps_value<'a>(doc: &'a roxmltree::Document, tag: &str) -> Option<&'a str> {
@@ -277,6 +277,9 @@ fn maven(props: &PackageLookupProperties) -> Html {
         }
         if let Some(version) = get_deps_value(&doc, "version") {
             purl.with_namespace(version.to_string());
+        }
+        if let Some(r#type) = get_deps_value(&doc, "type") {
+            let _ = purl.add_qualifier("type", r#type.to_string());
         }
 
         Ok(purl)
