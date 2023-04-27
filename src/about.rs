@@ -22,6 +22,12 @@ pub fn about() -> Html {
                         <dd>{ env!("CARGO_PKG_VERSION") }</dd>
                         <dt>{ "License" }</dt>
                         <dd>{ env!("CARGO_PKG_LICENSE") }</dd>
+                        if let Some(commit) = option_env!("OPENSHIFT_BUILD_COMMIT") {
+                            <dt>{ "Commit" }</dt>
+                            <dd>{ commit }</dd>
+                        }
+                        <dt>{ "License" }</dt>
+                        <dd>{ env!("CARGO_PKG_LICENSE") }</dd>
                     </dl>
                 </Content>
             </patternfly_yew::prelude::About>
