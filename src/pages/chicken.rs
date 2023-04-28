@@ -14,7 +14,7 @@ pub fn chicken() -> Html {
 
             // We need to set the main section to fill, as we have a footer section
             <PageSection fill={PageSectionFill::Fill}>
-                <img src="assets/images/ben-moreland-auijD19Byq8-unsplash.jpg" />
+                <img src="assets/images/IMG_3484.png" />
             </PageSection>
         </>
     )
