@@ -1,14 +1,11 @@
 use crate::{
     about,
-    components::ExtLinkIcon,
     hooks::use_open,
     pages::{self, AppRoute},
 };
 use patternfly_yew::prelude::*;
 use yew::prelude::*;
 use yew_nested_router::prelude::Switch as RouterSwitch;
-
-const DOCS_URL: &str = "https://docs.seedwing.io/";
 
 #[function_component(Console)]
 pub fn console() -> Html {
@@ -23,7 +20,6 @@ pub fn console() -> Html {
                     <NavExpandable title="Home">
                         <NavRouterItem<AppRoute> to={AppRoute::Index}>{ "Overview" }</NavRouterItem<AppRoute>>
                         <NavRouterItem<AppRoute> to={AppRoute::Chicken}>{ "Chicken" }</NavRouterItem<AppRoute>>
-                        <NavItem to={DOCS_URL} target="_blank">{ "Documentation" } <ExtLinkIcon/> </NavItem>
                     </NavExpandable>
                     <NavExpandable title="Investigate">
                         <NavRouterItem<AppRoute> to={AppRoute::Package{package: Default::default()}} predicate={AppRoute::is_package}>{ "Packages" }</NavRouterItem<AppRoute>>
@@ -35,7 +31,6 @@ pub fn console() -> Html {
         </PageSidebar>
     );
 
-    let callback_docs = use_open(DOCS_URL, "_blank");
     let callback_github = use_open("https://github.com/xkcd-2347/chicken-coop", "_blank");
 
     let backdrop = use_backdrop();
@@ -56,7 +51,6 @@ pub fn console() -> Html {
                     position={Position::Right}
                     toggle={Icon::QuestionCircle}
                 >
-                    <AppLauncherItem onclick={callback_docs}>{ "Documentation" }</AppLauncherItem>
                     <AppLauncherItem onclick={callback_about}>{ "About" }</AppLauncherItem>
                 </AppLauncher>
             </ToolbarItem>
