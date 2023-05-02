@@ -1,0 +1,1 @@
+relocated to: https://github.com/xkcd-2347/trust-k8s
