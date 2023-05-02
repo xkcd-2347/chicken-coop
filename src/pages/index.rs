@@ -1,7 +1,5 @@
-use crate::pages::AppRoute;
 use patternfly_yew::prelude::*;
 use yew::prelude::*;
-use yew_nested_router::prelude::*;
 
 #[function_component(Index)]
 pub fn index() -> Html {
