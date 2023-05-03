@@ -997,7 +997,7 @@ dependencies = [
 [[package]]
 name = "patternfly-yew"
 version = "0.4.1"
-source = "git+https://github.com/ctron/patternfly-yew?rev=e5b48d19a0e871645dc14c263c27e5c1c0346012#e5b48d19a0e871645dc14c263c27e5c1c0346012"
+source = "git+https://github.com/ctron/patternfly-yew?rev=4b9905da4968d6f48c38e030ee86bb8599b2c4f9#4b9905da4968d6f48c38e030ee86bb8599b2c4f9"
 dependencies = [
  "chrono",
  "gloo-events",
@@ -1655,6 +1655,7 @@ dependencies = [
  "form_urlencoded",
  "idna",
  "percent-encoding",
+ "serde",
 ]
 
 [[package]]
@@ -2085,10 +2086,12 @@ dependencies = [
 [[package]]
 name = "yew-more-hooks"
 version = "0.1.2"
-source = "git+https://github.com/ctron/yew-more-hooks?rev=9f39517aabe25cfadae48f2d225daa1c3a608c20#9f39517aabe25cfadae48f2d225daa1c3a608c20"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "46082ce48eb048786d948d87cdd34e3b08d594f56c467f674a6a5e79251c5818"
 dependencies = [
  "gloo-utils",
  "wasm-bindgen-futures",
+ "web-sys",
  "yew",
  "yew-hooks",
 ]
