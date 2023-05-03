@@ -1,5 +1,6 @@
 use crate::{
     about,
+    hooks::use_backend,
     pages::{self, AppRoute},
 };
 use patternfly_yew::prelude::*;
@@ -13,6 +14,8 @@ pub fn console() -> Html {
         <Brand src="assets/images/chicken-svgrepo-com.svg" alt="Chicken Logo" />
     );
 
+    let backend = use_backend();
+
     let sidebar = html_nested!(
         <PageSidebar>
             <Nav>
@@ -25,6 +28,11 @@ pub fn console() -> Html {
                         <NavRouterItem<AppRoute> to={AppRoute::Package{package: Default::default()}} predicate={AppRoute::is_package}>{ "Packages" }</NavRouterItem<AppRoute>>
                         <NavRouterItem<AppRoute> to={AppRoute::Vulnerability{cve: Default::default()}} predicate={AppRoute::is_vulnerability}>{ "Vulnerabilities" }</NavRouterItem<AppRoute>>
                         <NavRouterItem<AppRoute> to={AppRoute::SBOM}>{ "Upload SBOM" }</NavRouterItem<AppRoute>>
+                    </NavExpandable>
+                    <NavExpandable title="Extend">
+                        if let Ok(url) = backend.join("/swagger-ui/") {
+                            <NavItem external=true target="_blank" to={url.to_string()}>{ "API" }</NavItem>
+                        }
                     </NavExpandable>
                 </NavList>
             </Nav>
