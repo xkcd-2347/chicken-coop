@@ -1,4 +1,5 @@
 use crate::{backend::data, components::Trusted, pages::AppRoute};
+use itertools::Itertools;
 use packageurl::PackageUrl;
 use patternfly_yew::prelude::*;
 use std::cmp::Ordering;
@@ -57,11 +58,13 @@ impl TableEntryRenderer for PackageRef {
             ),
             1 => self.purl.version().map(Html::from).unwrap_or_default(),
             2 => html!(self.purl.ty()),
-            3 => html!( {
-                for self.purl.qualifiers().iter().map(|(k,v)| html!(
-                    <Label label={format!("{k}={v}")} />
-                ))
-            }),
+            3 =>
+                html!({
+                   for self.purl.qualifiers().iter().sorted_by_key(|(k,_)|k.clone()).map(|(k,v)| html!(
+                        <Label label={format!("{k}={v}")} />
+                    ))
+                })
+            ,
             _ => html!(),
         }
             .into()
