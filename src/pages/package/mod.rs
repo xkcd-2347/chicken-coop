@@ -4,6 +4,7 @@ mod versions;
 use crate::{
     backend::{data, Backend, PackageService},
     components::{deps::PackageReferences, remote_content, Trusted},
+    hooks::use_backend,
     pages::AppRoute,
     utils::RenderOptional,
 };
@@ -97,8 +98,7 @@ pub struct PackageInformationProperties {
 
 #[function_component(PackageInformation)]
 fn package_information(props: &PackageInformationProperties) -> Html {
-    let backend = use_context::<Rc<Backend>>()
-        .expect("Can only be called being wrapped by the 'Backend' component");
+    let backend = use_backend();
 
     let service = use_memo(
         |backend| PackageService::new((**backend).clone()),
