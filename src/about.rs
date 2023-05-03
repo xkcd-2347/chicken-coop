@@ -1,8 +1,11 @@
+use crate::hooks::use_backend;
 use patternfly_yew::prelude::*;
 use yew::prelude::*;
 
 #[function_component(About)]
 pub fn about() -> Html {
+    let backend = use_backend();
+
     html!(
         <Bullseye plain=true>
             <patternfly_yew::prelude::About
@@ -26,6 +29,8 @@ pub fn about() -> Html {
                             <dt>{ "Commit" }</dt>
                             <dd>{ commit }</dd>
                         }
+                        <dt>{ "Backend" }</dt>
+                        <dd>{ backend.url.to_string() }</dd>
                     </dl>
                 </Content>
             </patternfly_yew::prelude::About>

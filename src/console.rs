@@ -1,10 +1,10 @@
 use crate::{
     about,
-    hooks::use_open,
     pages::{self, AppRoute},
 };
 use patternfly_yew::prelude::*;
 use yew::prelude::*;
+use yew_more_hooks::prelude::*;
 use yew_nested_router::prelude::Switch as RouterSwitch;
 
 #[function_component(Console)]
