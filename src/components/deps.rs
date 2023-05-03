@@ -58,13 +58,13 @@ impl TableEntryRenderer for PackageRef {
             ),
             1 => self.purl.version().map(Html::from).unwrap_or_default(),
             2 => html!(self.purl.ty()),
-            3 =>
-                html!({
-                   for self.purl.qualifiers().iter().sorted_by_key(|(k,_)|k.clone()).map(|(k,v)| html!(
+            3 => html!(
+                { for self.purl.qualifiers().iter().sorted_by_key(|(k,_)|k.clone()).map(|(k,v)|
+                    html!(
                         <Label label={format!("{k}={v}")} />
                     ))
-                })
-            ,
+                }
+            ),
             _ => html!(),
         }
             .into()
