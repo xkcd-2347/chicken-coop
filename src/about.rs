@@ -11,7 +11,7 @@ pub fn about() -> Html {
             <patternfly_yew::prelude::About
                 brand_src="https://www.patternfly.org/assets/images/PF-Masthead-Logo.svg"
                 brand_alt="Chicken logo"
-                title="Chicken Quickstart"
+                title="Chicken Coop"
                 strapline={html!("Copyright © 2020, 2023 by the Chickens")}
                 hero_style=r#"
 --pf-c-about-modal-box__hero--lg--BackgroundImage: url("https://www.patternfly.org/assets/images/pfbg_992@2x.jpg");
