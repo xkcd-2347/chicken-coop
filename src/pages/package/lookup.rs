@@ -276,7 +276,7 @@ fn maven(props: &PackageLookupProperties) -> Html {
             purl.with_namespace(group_id.to_string());
         }
         if let Some(version) = get_deps_value(&doc, "version") {
-            purl.with_namespace(version.to_string());
+            purl.with_version(version.to_string());
         }
         if let Some(r#type) = get_deps_value(&doc, "type") {
             let _ = purl.add_qualifier("type", r#type.to_string());
