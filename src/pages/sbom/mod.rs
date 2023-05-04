@@ -82,19 +82,31 @@ fn common_header() -> Html {
 #[function_component(GenerateCard)]
 fn generate_card() -> Html {
     let maven = r#"mvn org.cyclonedx:cyclonedx-maven-plugin:2.7.7:makeAggregateBom -Dcyclonedx.skipAttach=true -DoutputFormat=json -DschemaVersion=1.3 -Dcyclonedx.verbose=false"#;
+    let container = r#"syft packages <container> -o cyclonedx-json --file sbom.json"#;
+    let container_example =
+        r#"syft packages quay.io/keycloak/keycloak:latest -o cyclonedx-json --file sbom.json"#;
+
+    use patternfly_yew::next::TextInput;
 
     html!(
         <Card
             title={html!(<Title>{"Generate"}</Title>)}
         >
-            <Tabs>
+            <Tabs r#box=true>
+                <Tab label="Container">
+                    <Content>
+                        <p> { "Run the following command:" } </p>
+                        <p> <TextInput readonly=true value={container}  /> </p>
+                        <p> { "Be sure to replace " } <code> {"<container>"} </code> { "with the actual name of the container, for example:" } </p>
+                        <p> <Clipboard readonly=true code=true value={container_example} variant={ClipboardVariant::Expanded} /> </p>
+                        <p> { "The SBOM will be generated as: " } <code> { "target/sbom.json" } </code> </p>
+                    </Content>
+                </Tab>
                 <Tab label="Maven">
                     <Content>
-                        { "Run the following command from the root of your project:" }
-                    </Content>
-                    <Clipboard readonly=true code=true value={maven} variant={ClipboardVariant::Expanded}/>
-                    <Content>
-                        { "The SBOM will be generated as: " } <code> { "target/sbom.json" } </code>
+                        <p> { "Run the following command from the root of your project:" } </p>
+                        <p> <Clipboard readonly=true code=true value={maven} variant={ClipboardVariant::Expanded} /> </p>
+                        <p> { "The SBOM will be generated as: " } <code> { "sbom.json" } </code> </p>
                     </Content>
                 </Tab>
             </Tabs>
