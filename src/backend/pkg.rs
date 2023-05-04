@@ -37,13 +37,6 @@ impl PackageService {
         self.batch_to_refs("/api/package", purls).await
     }
 
-    pub async fn versions<'a, I>(&self, purls: I) -> Result<Vec<PackageRef>, Error>
-    where
-        I: IntoIterator<Item = PackageUrl<'a>>,
-    {
-        self.batch_to_refs("/api/package/versions", purls).await
-    }
-
     pub async fn dependencies<'a, I>(&self, purls: I) -> Result<Vec<PackageDependencies>, Error>
     where
         I: IntoIterator<Item = PackageUrl<'a>>,

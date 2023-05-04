@@ -79,21 +79,6 @@ pub struct PackageInformationProperties {
     purl: PackageUrl<'static>,
 }
 
-fn strip_purl(original: &PackageUrl<'static>) -> PackageUrl<'static> {
-    let mut purl = match PackageUrl::new(original.ty().to_string(), original.name().to_string()) {
-        Ok(purl) => purl,
-        Err(_) => return original.clone(),
-    };
-
-    // only add the namespace, as we want to search for alternatives, including alternative versions
-
-    if let Some(namespace) = original.namespace() {
-        purl.with_namespace(namespace.to_string());
-    }
-
-    purl
-}
-
 #[function_component(PackageInformation)]
 fn package_information(props: &PackageInformationProperties) -> Html {
     let backend = use_backend();
