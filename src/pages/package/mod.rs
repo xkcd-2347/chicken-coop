@@ -47,7 +47,6 @@ pub fn package(props: &PackageProperties) -> Html {
                     <PackageSearch />
                 }
             </PageSection>
-
         </>
     )
 }

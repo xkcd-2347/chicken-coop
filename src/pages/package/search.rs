@@ -108,7 +108,15 @@ pub fn package_search() -> Html {
         backend.clone(),
     );
 
-    let state = use_state_eq(default_purl);
+    let state = use_state_eq(|| {
+        // initialize with the state from history, or with a reasonable default
+        gloo_utils::history()
+            .state()
+            .ok()
+            .and_then(|state| state.as_string())
+            .and_then(|state| PackageUrl::from_str(&state).ok())
+            .unwrap_or_else(default_purl)
+    });
 
     let purl = (*state).clone();
 
@@ -191,6 +199,15 @@ pub fn package_search() -> Html {
             (*state).clone(),
         )
     };
+
+    use_effect_with_deps(
+        |purl| {
+            // store changes to the state in the current history
+            let purl = purl.to_string();
+            let _ = gloo_utils::history().replace_state(&purl.into(), "");
+        },
+        (*state).clone(),
+    );
 
     html!(
         <>
