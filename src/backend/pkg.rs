@@ -58,6 +58,13 @@ impl PackageService {
         self.batch_to_refs("/api/package/dependents", purls).await
     }
 
+    pub async fn search<'a, I>(&self, purls: I) -> Result<PackageDependents, Error>
+    where
+        I: IntoIterator<Item = PackageUrl<'a>>,
+    {
+        self.batch_to_refs("/api/package/search", purls).await
+    }
+
     /// common call of getting some refs for a batch of purls
     async fn batch_to_refs<'a, I, R>(&self, path: &str, purls: I) -> Result<R, Error>
     where

@@ -53,7 +53,7 @@ impl TableEntryRenderer for PackageRef {
                 <>
                     <Link<AppRoute> target={AppRoute::Package {package: self.pkg.purl.clone()}}>{&self.label}</Link<AppRoute>>
                     if let Some(true) = &self.pkg.trusted {
-                        <Trusted />
+                        {" "} <Trusted />
                     }
                 </>
             ),
@@ -61,9 +61,9 @@ impl TableEntryRenderer for PackageRef {
             2 => html!(self.purl.ty()),
             3 => html!(
                 { for self.purl.qualifiers().iter().sorted_by_key(|(k,_)|k.clone()).map(|(k,v)|
-                    html!(
-                        <Label label={format!("{k}={v}")} />
-                    ))
+                    html!(<>
+                        {" "} <Label compact=true label={format!("{k}={v}")} />
+                    </>))
                 }
             ),
             _ => html!(),

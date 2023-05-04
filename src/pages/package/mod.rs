@@ -9,7 +9,6 @@ use crate::{
     pages::AppRoute,
     utils::RenderOptional,
 };
-use lookup::*;
 use packageurl::PackageUrl;
 use patternfly_yew::prelude::*;
 use search::PackageSearch;
@@ -45,7 +44,7 @@ pub fn package(props: &PackageProperties) -> Html {
                     if let Some(purl) = purl(&props.package) {
                         <Title size={Size::XXXXLarge}>{package_title(purl)}</Title>
                     } else {
-                        <Title size={Size::XXXXLarge}>{"Packages"}</Title>
+                        <Title size={Size::XXXXLarge}>{"Search Packages"}</Title>
                     }
                     <p>{ "Get detailed package information" }</p>
                 </Content>
@@ -104,6 +103,21 @@ pub struct PackageInformationProperties {
     purl: PackageUrl<'static>,
 }
 
+fn strip_purl(original: &PackageUrl<'static>) -> PackageUrl<'static> {
+    let mut purl = match PackageUrl::new(original.ty().to_string(), original.name().to_string()) {
+        Ok(purl) => purl,
+        Err(_) => return original.clone(),
+    };
+
+    // only add the namespace, as we want to search for alternatives, including alternative versions
+
+    if let Some(namespace) = original.namespace() {
+        purl.with_namespace(namespace.to_string());
+    }
+
+    purl
+}
+
 #[function_component(PackageInformation)]
 fn package_information(props: &PackageInformationProperties) -> Html {
     let backend = use_backend();
@@ -124,7 +138,10 @@ fn package_information(props: &PackageInformationProperties) -> Html {
     let fetch_versions = {
         let service = service.clone();
         use_async_with_cloned_deps(
-            |purl| async move { service.versions([purl]).await },
+            |mut purl| {
+                purl.without_version();
+                async move { service.search(vec![purl]).await }
+            },
             props.purl.clone(),
         )
     };
@@ -209,7 +226,7 @@ fn package_information(props: &PackageInformationProperties) -> Html {
                     { remote_card(&fetch_versions, |data|
                         remote_card_title_badge("Versions", data.map(|r|r.len())),
                     |data| html!(
-                        <PackageVersions versions={data.clone()}/>
+                        <PackageVersions versions={data.0.clone()}/>
                     )) }
 
                 </Gallery>

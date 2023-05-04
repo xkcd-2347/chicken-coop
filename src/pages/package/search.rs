@@ -1,4 +1,4 @@
-use crate::backend::{data::PackageRef, PackageService};
+use crate::backend::PackageService;
 use crate::components::deps::PackageReferences;
 use crate::hooks::use_backend;
 use packageurl::PackageUrl;
@@ -12,7 +12,7 @@ use yew::prelude::*;
 use yew_more_hooks::hooks::{use_async_with_cloned_deps, UseAsyncState};
 
 fn default_purl() -> PackageUrl<'static> {
-    PackageUrl::from_str("pkg:maven/io.quarkus/quarkus-core@2.16.2.Final?type=jar").unwrap()
+    PackageUrl::from_str("pkg:maven/io.quarkus/quarkus-core").unwrap()
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, strum::Display, strum::EnumIter)]
@@ -187,7 +187,7 @@ pub fn package_search() -> Html {
     let search = {
         let service = service.clone();
         use_async_with_cloned_deps(
-            move |purl| async move { service.lookup(purl).await },
+            move |purl| async move { service.search(vec![purl]).await },
             (*state).clone(),
         )
     };
@@ -230,15 +230,21 @@ pub fn package_search() -> Html {
             {
                 match &*search {
                     UseAsyncState::Pending | UseAsyncState::Processing => { html!(<Spinner/>) }
+                    UseAsyncState::Ready(Ok(result)) if result.is_empty() => {
+                        html!(
+                            <Bullseye>
+                                <EmptyState
+                                    title="No results"
+                                    icon={Icon::Search}
+                                >
+                                    { "Try some different query parameters." }
+                                </EmptyState>
+                            </Bullseye>
+                        )
+                    },
                     UseAsyncState::Ready(Ok(result)) => {
-                        // FIXME: replace with actual list processing
-                        let r = PackageRef {
-                            href: result.href.clone().unwrap_or_default(),
-                            purl: result.purl.clone().unwrap_or_default(),
-                            sbom: result.sbom.clone(),
-                            trusted: result.trusted,
-                        };
-                        html!(<PackageReferences refs={vec![r]}/>)
+                        let refs = result.0.clone();
+                        html!(<PackageReferences {refs} />)
                     },
                     UseAsyncState::Ready(Err(err)) => html!(
                         <Bullseye>
