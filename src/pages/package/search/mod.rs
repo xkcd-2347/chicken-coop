@@ -1,3 +1,5 @@
+mod lookup;
+
 use crate::backend::PackageService;
 use crate::components::deps::PackageReferences;
 use crate::hooks::use_backend;
@@ -209,6 +211,23 @@ pub fn package_search() -> Html {
         (*state).clone(),
     );
 
+    let backdrop = use_backdrop();
+    let onfrompurl = {
+        let state = state.clone();
+        let onclose = Callback::from(move |purl| {
+            state.set(purl);
+        });
+        Callback::from(move |_| {
+            if let Some(backdrop) = &backdrop {
+                backdrop.open(html!( <lookup::LookupPackageModal
+                        allow_cancel=true
+                        label="Ok"
+                        onclose={onclose.clone()}
+                    /> ));
+            }
+        })
+    };
+
     html!(
         <>
             <Toolbar>
@@ -238,6 +257,9 @@ pub fn package_search() -> Html {
                                     <Button icon={Icon::ArrowRight} variant={ButtonVariant::Control} onclick={onset} disabled={set_disabled} />
                                 </TextInputGroup>
                             </InputGroup>
+                        </ToolbarItem>
+                        <ToolbarItem>
+                            <Button label="From Package URL" variant={ButtonVariant::Secondary} onclick={onfrompurl} />
                         </ToolbarItem>
                     </ToolbarGroup>
                 </ToolbarContent>

@@ -4,6 +4,7 @@ use std::rc::Rc;
 use yew::prelude::*;
 
 mod inspect;
+mod unknown;
 mod upload;
 
 use inspect::Inspect;
@@ -25,15 +26,15 @@ pub fn sbom() -> Html {
             content.as_ref().and_then(|data| {
                 Bom::parse_from_json_v1_3(data.as_bytes())
                     .ok()
-                    .map(|sbom| Rc::new((data.clone(), sbom)))
+                    .map(|sbom| (Rc::new(data.clone()), Rc::new(sbom)))
             })
         },
         content.clone(),
     );
 
     match sbom.as_ref() {
-        Some(sbom) => {
-            html!(<Inspect sbom={sbom.clone()}/>)
+        Some((raw, bom)) => {
+            html!(<Inspect raw={raw.clone()} bom={bom.clone()} />)
         }
         None => {
             let onvalidate =

@@ -10,6 +10,7 @@ pub struct PackageService {
     client: reqwest::Client,
 }
 
+#[allow(unused)]
 impl PackageService {
     pub fn new(backend: Backend) -> Self {
         Self {

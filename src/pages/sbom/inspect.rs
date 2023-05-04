@@ -1,7 +1,11 @@
-use super::CommonHeader;
+use super::{
+    unknown::{into_unknown, UnknownPackages},
+    CommonHeader,
+};
 use crate::{
-    backend::{Backend, PackageService},
-    components::{deps::PackageReferences, remote_content},
+    backend::PackageService,
+    components::{count_title, deps::PackageReferences},
+    hooks::use_backend,
 };
 use cyclonedx_bom::prelude::Bom;
 use packageurl::PackageUrl;
@@ -13,7 +17,8 @@ use yew_more_hooks::hooks::r#async::*;
 
 #[derive(Clone, PartialEq, Properties)]
 pub struct InspectProperties {
-    pub sbom: Rc<(String, Bom)>,
+    pub raw: Rc<String>,
+    pub bom: Rc<Bom>,
 }
 
 #[function_component(Inspect)]
@@ -27,7 +32,7 @@ pub fn inspect(props: &InspectProperties) -> Html {
     };
 
     let purls = use_memo(
-        |sbom| match &sbom.1.components {
+        |sbom| match &sbom.components {
             Some(comps) => comps
                 .0
                 .iter()
@@ -35,11 +40,10 @@ pub fn inspect(props: &InspectProperties) -> Html {
                 .collect(),
             None => vec![],
         },
-        props.sbom.clone(),
+        props.bom.clone(),
     );
 
-    let backend = use_context::<Rc<Backend>>()
-        .expect("Can only be called being wrapped by the 'Backend' component");
+    let backend = use_backend();
 
     let service = use_memo(
         |backend| PackageService::new((**backend).clone()),
@@ -51,7 +55,7 @@ pub fn inspect(props: &InspectProperties) -> Html {
         use_async_with_cloned_deps(
             |purls| async move {
                 service
-                    .lookup_batch(
+                    .search(
                         purls
                             .iter()
                             .filter_map(|purl| PackageUrl::from_str(purl).ok()),
@@ -62,32 +66,49 @@ pub fn inspect(props: &InspectProperties) -> Html {
         )
     };
 
-    html!(
-        <>
-            <CommonHeader />
+    let unknown = use_memo(
+        |(f, bom)| match f {
+            Some(data) => into_unknown(&bom, data),
+            None => vec![],
+        },
+        (fetch.data().cloned(), props.bom.clone()),
+    );
 
-            <PageSection r#type={PageSectionType::Tabs} variant={PageSectionVariant::Light} sticky={[PageSectionSticky::Top]}>
-                <Tabs inset={TabInset::Page} detached=true {onselect}>
-                    <Tab label="SBOM"/>
-                    <Tab label="Inspect"/>
-                </Tabs>
+    match &*fetch {
+        UseAsyncState::Pending | UseAsyncState::Processing => html!(
+            <PageSection fill={PageSectionFill::Fill}>
+                <Spinner />
             </PageSection>
+        ),
+        UseAsyncState::Ready(Ok(data)) => html!(
+            <>
+                <CommonHeader />
 
-            <PageSection hidden={*tab != 0} fill={PageSectionFill::Fill}>
-                {
-                    remote_content(&fetch, |data| {
-                        html!(<PackageReferences refs={data.clone()} />)
-                    })
-                }
-            </PageSection>
+                <PageSection r#type={PageSectionType::Tabs} variant={PageSectionVariant::Light} sticky={[PageSectionSticky::Top]}>
+                    <Tabs inset={TabInset::Page} detached=true {onselect}>
+                        <Tab label={count_title(data.len(), "Found", "Found")} />
+                        <Tab label={count_title(unknown.len(), "Unknown", "Unknown")} />
+                        <Tab label="Raw SBOM"/>
+                    </Tabs>
+                </PageSection>
 
-            <PageSection hidden={*tab != 1} variant={PageSectionVariant::Light} fill={PageSectionFill::Fill}>
-                <CodeBlock>
-                    <CodeBlockCode>
-                        { &props.sbom.0 }
-                    </CodeBlockCode>
-                </CodeBlock>
-           </PageSection>
-        </>
-    )
+                <PageSection hidden={*tab != 0} fill={PageSectionFill::Fill}>
+                    <PackageReferences refs={data.0.clone()} />
+                </PageSection>
+
+                <PageSection hidden={*tab != 1} fill={PageSectionFill::Fill}>
+                    <UnknownPackages {unknown} />
+                </PageSection>
+
+                <PageSection hidden={*tab != 2} variant={PageSectionVariant::Light} fill={PageSectionFill::Fill}>
+                    <CodeBlock>
+                        <CodeBlockCode>
+                            { &props.raw }
+                        </CodeBlockCode>
+                    </CodeBlock>
+               </PageSection>
+            </>
+        ),
+        UseAsyncState::Ready(Err(err)) => html!(<>{"Failed to load: "} { err } </>),
+    }
 }

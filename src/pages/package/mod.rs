@@ -3,7 +3,7 @@ mod versions;
 
 use crate::{
     backend::{data, Backend, PackageService},
-    components::{deps::PackageReferences, remote_content, Trusted},
+    components::{deps::PackageReferences, remote_content, remote_refs_count_title, Trusted},
     hooks::use_backend,
     pages::AppRoute,
     utils::RenderOptional,
@@ -11,7 +11,6 @@ use crate::{
 use packageurl::PackageUrl;
 use patternfly_yew::prelude::*;
 use search::PackageSearch;
-use std::ops::Deref;
 use std::rc::Rc;
 use std::str::FromStr;
 use versions::*;
@@ -194,26 +193,6 @@ fn package_information(props: &PackageInformationProperties) -> Html {
             </GridItem>
         </Grid>
     )
-}
-
-fn remote_refs_count_title<T, E, F, R, X>(
-    fetch: &UseAsyncHandleDeps<T, E>,
-    f: F,
-    singular: &str,
-    plural: &str,
-) -> String
-where
-    F: FnOnce(&T) -> Option<&R>,
-    R: Deref<Target = [X]>,
-{
-    match &**fetch {
-        UseAsyncState::Ready(Ok(data)) => match f(data).map(|r| r.len()) {
-            Some(1) => format!("1 {singular}"),
-            Some(len) => format!("{len} {plural}"),
-            None => plural.to_string(),
-        },
-        _ => plural.to_string(),
-    }
 }
 
 fn remote_card_title_badge(title: &str, entries: Option<usize>) -> Html {
