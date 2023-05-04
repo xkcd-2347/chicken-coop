@@ -1,4 +1,3 @@
-mod lookup;
 mod search;
 mod versions;
 
@@ -27,16 +26,6 @@ pub struct PackageProperties {
 
 #[function_component(Package)]
 pub fn package(props: &PackageProperties) -> Html {
-    // let backdrop = use_backdrop();
-    /*
-    let primary = Callback::from(move |_| {
-        if let Some(backdrop) = &backdrop {
-            backdrop.open(html!(<LookupPackageModal/>));
-        }
-    })
-    .into_action("Lookup");
-     */
-
     html!(
         <>
             <PageSection variant={PageSectionVariant::Light} sticky={[PageSectionSticky::Top]} >
@@ -57,18 +46,6 @@ pub fn package(props: &PackageProperties) -> Html {
                 } else {
                     <PackageSearch />
                 }
-            /*
-                    <Bullseye>
-                        <EmptyState
-                            full_height=true
-                            title="Package Information"
-                            icon={Icon::Package}
-                            {primary}
-                        >
-                            { "Lookup a package to find more information" }
-                        </EmptyState>
-                    </Bullseye>
-             */
             </PageSection>
 
         </>
