@@ -247,6 +247,7 @@ pub fn upload(props: &UploadProperties) -> Html {
                             resize={ResizeOrientation::Vertical}
                             oninput={oninput_text}
                             rows={20}
+                            readonly=true
                             {state}
                         />
                     </FileUploadDetails>
