@@ -1,4 +1,5 @@
 mod lookup;
+mod search;
 mod versions;
 
 use crate::{
@@ -11,6 +12,7 @@ use crate::{
 use lookup::*;
 use packageurl::PackageUrl;
 use patternfly_yew::prelude::*;
+use search::PackageSearch;
 use std::ops::Deref;
 use std::rc::Rc;
 use std::str::FromStr;
@@ -26,13 +28,15 @@ pub struct PackageProperties {
 
 #[function_component(Package)]
 pub fn package(props: &PackageProperties) -> Html {
-    let backdrop = use_backdrop();
+    // let backdrop = use_backdrop();
+    /*
     let primary = Callback::from(move |_| {
         if let Some(backdrop) = &backdrop {
             backdrop.open(html!(<LookupPackageModal/>));
         }
     })
     .into_action("Lookup");
+     */
 
     html!(
         <>
@@ -52,6 +56,9 @@ pub fn package(props: &PackageProperties) -> Html {
                 if let Some(purl) = purl(&props.package) {
                     <PackageInformation {purl} />
                 } else {
+                    <PackageSearch />
+                }
+            /*
                     <Bullseye>
                         <EmptyState
                             full_height=true
@@ -62,8 +69,9 @@ pub fn package(props: &PackageProperties) -> Html {
                             { "Lookup a package to find more information" }
                         </EmptyState>
                     </Bullseye>
-                }
+             */
             </PageSection>
+
         </>
     )
 }

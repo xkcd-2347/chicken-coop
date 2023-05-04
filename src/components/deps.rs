@@ -9,6 +9,7 @@ use yew_nested_router::components::Link;
 
 #[derive(Clone, Debug, PartialEq, Eq, Properties)]
 pub struct PackageRefsProperties {
+    #[prop_or_default]
     pub refs: Vec<data::PackageRef>,
 }
 
